@@ -1,0 +1,6 @@
+tipo_ativo,nome,codigo_referencia,numero_serie,status,responsavel,localizacao,fabricante,modelo,patrimonio,termo_assinado,link_termo
+Computador,NOTE-JOAO-01,INV-000123,ABC123XYZ,Ativo,joao.silva,Matriz - São Paulo,Dell,Latitude 5420,PAT-4521,sim,https://exemplo.com/termo/123
+Monitor,MON-JOAO-01,INV-000124,MN998877,Ativo,joao.silva,Matriz - São Paulo,LG,24MK430H,,nao,
+Telefone,CEL-MARIA-01,INV-000125,IMEI123456,Ativo,maria.souza,Filial - Rio de Janeiro,Samsung,Galaxy A54,,sim,https://exemplo.com/termo/125
+Ponto de Acesso,AP-SALA-02,INV-000126,,Ativo,,Matriz - São Paulo,Ubiquiti,UAP-AC-Lite,,nao,
+Chip,CHIP-MARIA-01,INV-000127,,Ativo,maria.souza,,Vivo,,,nao,

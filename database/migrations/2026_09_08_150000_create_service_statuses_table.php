@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('service_statuses', function (Blueprint $table) {
+            $table->id();
+            // Ex: nfse_sefin, nfse_adn, mercadopago, mail, storage, sso.
+            $table->string('key')->unique();
+            $table->string('label');
+            $table->string('status'); // ok, down, unconfigured
+            $table->text('message')->nullable();
+            $table->timestamp('checked_at')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('service_statuses');
+    }
+};
