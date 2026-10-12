@@ -25,6 +25,47 @@
     })();
 
     (function () {
+        var serviceSelect = document.getElementById('billing-policy-service-id');
+        var planSelect = document.getElementById('billing-policy-service-plan');
+        var frequencySelect = document.getElementById('billing-policy-frequency');
+        var amountInput = document.getElementById('billing-policy-amount');
+        var plansByService = JSON.parse(document.getElementById('billing-policy-service-plans').textContent || '{}');
+
+        if (!serviceSelect || !planSelect) {
+            return;
+        }
+
+        function renderPlanOptions() {
+            var plans = plansByService[serviceSelect.value] || [];
+
+            planSelect.innerHTML = '<option value="">Preencher frequência/valor manualmente</option>';
+            plans.forEach(function (plan, index) {
+                var option = document.createElement('option');
+                option.value = index;
+                option.textContent = plan.label + ' - R$ ' + plan.price.replace('.', ',');
+                planSelect.appendChild(option);
+            });
+            planSelect.disabled = plans.length === 0;
+        }
+
+        serviceSelect.addEventListener('change', renderPlanOptions);
+
+        planSelect.addEventListener('change', function () {
+            var plans = plansByService[serviceSelect.value] || [];
+            var plan = plans[planSelect.value];
+
+            if (!plan) {
+                return;
+            }
+
+            frequencySelect.value = plan.frequency;
+            amountInput.value = plan.price;
+        });
+
+        renderPlanOptions();
+    })();
+
+    (function () {
         var textarea = document.getElementById('billing-policy-notes');
 
         document.querySelectorAll('[data-insert-variable]').forEach(function (button) {

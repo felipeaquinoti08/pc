@@ -8,7 +8,10 @@ use App\Http\Controllers\Api\ContactLeadController;
 // Called by licensed plugins (e.g. Entrasso) every ~10 minutes to check
 // whether their serial is still active and within the contracted
 // installation quantity. Stateless, no session - the license_key itself
-// is the credential, rate-limited to prevent brute-forcing keys.
+// is the credential, rate-limited to prevent brute-forcing keys. Each
+// plugin must also send its own fixed `service_slug` (the Service's slug
+// in Painel Central) so a key bought for one plugin can't be reused in
+// another - see LicenseValidationController.
 Route::post('/licenses/validate', [LicenseValidationController::class, 'validateLicense'])
     ->middleware('throttle:30,1')
     ->name('api.licenses.validate');

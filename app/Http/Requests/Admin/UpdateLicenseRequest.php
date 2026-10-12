@@ -15,7 +15,8 @@ class UpdateLicenseRequest extends FormRequest
     {
         return [
             'customer_id' => ['required', 'exists:customers,id'],
-            'service_id' => ['required', 'exists:services,id'],
+            'service_ids' => ['required', 'array', 'min:1'],
+            'service_ids.*' => ['exists:services,id'],
             'quantity' => ['required', 'integer', 'min:1'],
             'starts_at' => ['required', 'date'],
             'expires_at' => ['nullable', 'date', 'after_or_equal:starts_at'],

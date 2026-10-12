@@ -14,6 +14,7 @@ class LicenseActivation extends Model
 
     protected $fillable = [
         'license_id',
+        'service_id',
         'instance_identifier',
         'instance_url',
         'ip_address',
@@ -33,5 +34,10 @@ class LicenseActivation extends Model
     public function license()
     {
         return $this->belongsTo(License::class);
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
     }
 }

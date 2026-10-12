@@ -32,9 +32,8 @@ class LicenseRepository extends BaseRepository
     {
         DB::beginTransaction();
         try {
-            $this->model->create([
+            $license = $this->model->create([
                 'customer_id' => $request->customer_id,
-                'service_id' => $request->service_id,
                 'license_key' => License::generateKey(),
                 'quantity' => $request->quantity,
                 'starts_at' => $request->starts_at,
@@ -43,6 +42,8 @@ class LicenseRepository extends BaseRepository
                 'notes' => $request->notes,
                 'created_by_id' => Auth::id(),
             ]);
+
+            $license->services()->sync($request->service_ids);
 
             DB::commit();
             return redirect()->route('admin.license.index')->with('success', 'Licenciamento cadastrado com sucesso.');
@@ -54,7 +55,7 @@ class LicenseRepository extends BaseRepository
 
     public function edit($id)
     {
-        $license = $this->model->with('activations')->find($id);
+        $license = $this->model->with(['activations.service', 'services'])->find($id);
         return view('admin.license.edit', [
             'license' => $license,
             'customers' => \App\Models\Customer::orderBy('name')->get(),
@@ -69,13 +70,14 @@ class LicenseRepository extends BaseRepository
             $license = $this->model->findOrFail($id);
             $license->update([
                 'customer_id' => $request->customer_id,
-                'service_id' => $request->service_id,
                 'quantity' => $request->quantity,
                 'starts_at' => $request->starts_at,
                 'expires_at' => $request->expires_at,
                 'status' => $request->status,
                 'notes' => $request->notes,
             ]);
+
+            $license->services()->sync($request->service_ids);
 
             DB::commit();
             return redirect()->route('admin.license.index')->with('success', 'Licenciamento atualizado com sucesso.');

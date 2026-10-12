@@ -36,7 +36,7 @@ class DashboardController extends Controller
             ->limit(6)
             ->get();
 
-        $expiringLicenses = License::with(['customer', 'service'])
+        $expiringLicenses = License::with(['customer', 'services'])
             ->where('status', License::STATUS_ACTIVE)
             ->whereNotNull('expires_at')
             ->where('expires_at', '<=', now()->addDays(30))

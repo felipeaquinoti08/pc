@@ -44,14 +44,15 @@
             <div class="col-sm-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Instalações ativadas ({{ $license->activeActivations()->count() }}/{{ $license->quantity }})</h5>
-                        <p class="text-muted mb-0">Cada instalação do plugin que valida esta chave conta uma vaga. Vagas só são liberadas manualmente.</p>
+                        <h5>Instalações ativadas ({{ $license->activeActivations()->count() }}/{{ $license->totalAllowedActivations() }})</h5>
+                        <p class="text-muted mb-0">Cada instalação de um plugin que valida esta chave conta uma vaga - mas a vaga é por serviço dentro do pacote (quantidade × nº de serviços), não compartilhada entre plugins diferentes. Vagas só são liberadas manualmente.</p>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive custom-scrollbar">
                             <table class="table">
                                 <thead>
                                     <tr>
+                                        <th>Serviço</th>
                                         <th>Instância</th>
                                         <th>URL</th>
                                         <th>Ativada em</th>
@@ -63,6 +64,7 @@
                                 <tbody>
                                     @forelse ($license->activations as $activation)
                                         <tr>
+                                            <td>{{ $activation->service?->name ?? '-' }}</td>
                                             <td><code>{{ $activation->instance_identifier }}</code></td>
                                             <td>{{ $activation->instance_url ?? '-' }}</td>
                                             <td>{{ $activation->activated_at->format('d/m/Y H:i') }}</td>
@@ -86,7 +88,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center text-muted">Nenhuma instalação validou esta chave ainda.</td>
+                                            <td colspan="7" class="text-center text-muted">Nenhuma instalação validou esta chave ainda.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>

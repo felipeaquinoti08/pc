@@ -17,7 +17,6 @@ class License extends Model
 
     protected $fillable = [
         'customer_id',
-        'service_id',
         'campaign_id',
         'license_key',
         'quantity',
@@ -43,9 +42,14 @@ class License extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function service()
+    /**
+     * Os serviços cobertos por esta licença - mais de um quando é um
+     * "pacote" (vários plugins com o mesmo license_key). A API de
+     * validação libera qualquer plugin cujo slug esteja entre estes.
+     */
+    public function services()
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsToMany(Service::class);
     }
 
     public function campaign()
@@ -61,6 +65,17 @@ class License extends Model
     public function activeActivations()
     {
         return $this->activations()->where('status', LicenseActivation::STATUS_ACTIVE);
+    }
+
+    /**
+     * `quantity` vale por serviço dentro do pacote - uma mesma instância
+     * pode validar vários plugins do mesmo pacote sem disputar a mesma
+     * vaga (ver LicenseValidationController), então o total de vagas da
+     * licença como um todo é quantity × quantidade de serviços cobertos.
+     */
+    public function totalAllowedActivations(): int
+    {
+        return $this->quantity * max($this->services->count(), 1);
     }
 
     public function invoices()

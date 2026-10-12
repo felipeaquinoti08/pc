@@ -2,6 +2,7 @@
 
 namespace App\DataTables;
 
+use App\Models\BillingPolicy;
 use App\Models\Service;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Services\DataTable;
@@ -23,6 +24,19 @@ class ServiceDataTable extends DataTable
                     'yearly' => 'Anual',
                 ][$row->billing_type] ?? $row->billing_type;
             })
+            ->addColumn('pricing_plans', function ($row) {
+                if ($row->pricingPlans->isEmpty()) {
+                    return '<span class="text-muted">—</span>';
+                }
+
+                $labels = BillingPolicy::frequencies();
+
+                return $row->pricingPlans->map(function ($plan) use ($labels) {
+                    $label = $labels[$plan->frequency] ?? $plan->frequency;
+
+                    return "{$label}: R$ " . number_format($plan->price, 2, ',', '.');
+                })->implode('<br>');
+            })
             ->editColumn('action', function ($row) {
                 return view('admin.inc.action', [
                     'edit'   => 'admin.service.edit',
@@ -38,12 +52,12 @@ class ServiceDataTable extends DataTable
                     'value' => $row->status,
                 ]);
             })
-            ->rawColumns(['action', 'status']);
+            ->rawColumns(['action', 'status', 'pricing_plans']);
     }
 
     public function query(Service $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model->newQuery()->with('pricingPlans');
     }
 
     public function html(): HtmlBuilder
@@ -51,8 +65,10 @@ class ServiceDataTable extends DataTable
         return $this->builder()
             ->setTableId('service-table')
             ->addColumn(['data' => 'name', 'title' => __('Nome'), 'orderable' => true, 'searchable' => true])
+            ->addColumn(['data' => 'slug', 'title' => __('Slug'), 'orderable' => true, 'searchable' => true])
             ->addColumn(['data' => 'price', 'title' => __('Preço'), 'orderable' => true, 'searchable' => false])
             ->addColumn(['data' => 'billing_type', 'title' => __('Cobrança'), 'orderable' => true, 'searchable' => false])
+            ->addColumn(['data' => 'pricing_plans', 'title' => __('Planos'), 'orderable' => false, 'searchable' => false])
             ->addColumn(['data' => 'status', 'title' => __('Status'), 'orderable' => true, 'searchable' => false])
             ->addColumn(['data' => 'action', 'title' => __('Ações'), 'orderable' => false, 'searchable' => false])
             ->minifiedAjax()

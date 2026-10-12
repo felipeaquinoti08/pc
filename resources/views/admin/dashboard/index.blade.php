@@ -492,7 +492,7 @@
                             <div class="dashboard-list-row {{ ! $loop->last ? 'mb-2' : '' }}">
                                 <div>
                                     <a class="f-w-500" href="{{ route('admin.license.edit', $license->id) }}">{{ $license->customer?->name }}</a>
-                                    <p class="mb-0 f-light">{{ $license->service?->name }}</p>
+                                    <p class="mb-0 f-light">{{ $license->services->pluck('name')->implode(', ') }}</p>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge {{ $urgencyClass }}">{{ $license->expires_at->format('d/m/Y') }}</span>

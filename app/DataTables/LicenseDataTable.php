@@ -14,11 +14,16 @@ class LicenseDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('customer_name', fn ($row) => $row->customer?->name)
-            ->addColumn('service_name', fn ($row) => $row->service?->name)
+            ->addColumn('service_name', function ($row) {
+                $names = e($row->services->pluck('name')->implode(', '));
+
+                return "<span class=\"d-inline-block text-truncate\" style=\"max-width: 320px;\" title=\"{$names}\">{$names}</span>";
+            })
             ->addColumn('usage', function ($row) {
                 $active = $row->activeActivations()->count();
-                $class = $active >= $row->quantity ? 'text-danger' : 'text-success';
-                return "<span class=\"{$class}\">{$active}/{$row->quantity}</span>";
+                $total = $row->totalAllowedActivations();
+                $class = $active >= $total ? 'text-danger' : 'text-success';
+                return "<span class=\"{$class}\">{$active}/{$total}</span>";
             })
             ->editColumn('expires_at', function ($row) {
                 return $row->expires_at ? $row->expires_at->format('d/m/Y') : 'Sem vencimento';
@@ -39,12 +44,12 @@ class LicenseDataTable extends DataTable
                     'data'   => $row
                 ]);
             })
-            ->rawColumns(['usage', 'status', 'action']);
+            ->rawColumns(['service_name', 'usage', 'status', 'action']);
     }
 
     public function query(License $model): QueryBuilder
     {
-        return $model->newQuery()->with(['customer', 'service', 'activations']);
+        return $model->newQuery()->with(['customer', 'services', 'activations']);
     }
 
     public function html(): HtmlBuilder

@@ -43,4 +43,5 @@
 @endsection
 
 @section('scripts')
+    @include('admin.service.scripts')
 @endsection

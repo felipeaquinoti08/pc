@@ -48,21 +48,34 @@
                     <option value="">Selecione</option>
                     @foreach ($licenses as $license)
                         <option value="{{ $license->id }}" {{ old('billable_id', $selectedBillableType === 'license' ? ($policy->billable_id ?? '') : '') == $license->id ? 'selected' : '' }}>
-                            {{ $license->license_key }} — {{ $license->customer?->name }} ({{ $license->service?->name }})</option>
+                            {{ $license->license_key }} — {{ $license->customer?->name }} ({{ $license->services->pluck('name')->implode(', ') }})</option>
                     @endforeach
                 </select>
             </div>
         </div>
         <div class="col-sm-12 billing-policy-billable-field" data-for="service">
-            <div class="mt-3">
-                <label class="form-label">Serviço</label>
-                <select class="form-select" name="billable_id" id="billing-policy-service-id">
-                    <option value="">Selecione</option>
-                    @foreach ($services as $service)
-                        <option value="{{ $service->id }}" {{ old('billable_id', $selectedBillableType === 'service' ? ($policy->billable_id ?? '') : '') == $service->id ? 'selected' : '' }}>
-                            {{ $service->name }}</option>
-                    @endforeach
-                </select>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="mt-3">
+                        <label class="form-label">Serviço</label>
+                        <select class="form-select" name="billable_id" id="billing-policy-service-id">
+                            <option value="">Selecione</option>
+                            @foreach ($services as $service)
+                                <option value="{{ $service->id }}" {{ old('billable_id', $selectedBillableType === 'service' ? ($policy->billable_id ?? '') : '') == $service->id ? 'selected' : '' }}>
+                                    {{ $service->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="mt-3">
+                        <label class="form-label">Plano do serviço</label>
+                        <select class="form-select" id="billing-policy-service-plan">
+                            <option value="">Preencher frequência/valor manualmente</option>
+                        </select>
+                        <small class="text-muted">Atalho - preenche Frequência e Valor abaixo, que continuam editáveis.</small>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-sm-12 billing-policy-billable-field" data-for="proposal">
@@ -91,7 +104,7 @@
         <div class="col-sm-3">
             <div class="mt-3">
                 <label class="form-label">Frequência<span> *</span></label>
-                <select class="form-select" name="frequency">
+                <select class="form-select" name="frequency" id="billing-policy-frequency">
                     @foreach (\App\Models\BillingPolicy::frequencies() as $value => $label)
                         <option value="{{ $value }}" {{ old('frequency', $policy->frequency ?? 'monthly') == $value ? 'selected' : '' }}>
                             {{ $label }}</option>
@@ -105,7 +118,7 @@
         <div class="col-sm-3">
             <div class="mt-3">
                 <label class="form-label">Valor (R$)<span> *</span></label>
-                <input class="form-control" type="number" step="0.01" min="0" name="amount"
+                <input class="form-control" type="number" step="0.01" min="0" name="amount" id="billing-policy-amount"
                     value="{{ old('amount', $policy->amount ?? '') }}">
                 @error('amount')
                     <span class="text-danger"><strong>{{ $message }}</strong></span>
@@ -176,3 +189,14 @@
         <button type="submit" class="btn btn-primary">{{ __('Salvar') }}</button>
     </div>
 </div>
+
+@php
+    $servicePlansByService = $services->mapWithKeys(fn ($service) => [
+        $service->id => $service->pricingPlans->map(fn ($plan) => [
+            'frequency' => $plan->frequency,
+            'label' => \App\Models\BillingPolicy::frequencies()[$plan->frequency] ?? $plan->frequency,
+            'price' => (string) $plan->price,
+        ]),
+    ]);
+@endphp
+<script type="application/json" id="billing-policy-service-plans">{!! json_encode($servicePlansByService) !!}</script>

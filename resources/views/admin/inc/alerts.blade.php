@@ -14,6 +14,19 @@
 <div class="toastr-message" data-type="warning">{{ session('warning') }}</div>
 @endif
 
+<style>
+    /* .page-header é fixed + fica por cima de tudo visualmente mesmo com
+       z-index menor que o #toast-container (999999) - header é opaco
+       (background #fff) e os ícones dele (busca/bookmark/notificação/
+       avatar) acabam desenhados sobre o início do texto do toast quando
+       ele nasce colado no topo (toast-top-right = top:12px). Empurra o
+       toast pra abaixo da faixa do header em vez de tentar brigar com a
+       pilha de z-index. */
+    #toast-container.toast-top-right {
+        top: 90px !important;
+    }
+</style>
+
 <script>
     $(document).ready(function() {
         $('.toastr-message').each(function() {

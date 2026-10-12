@@ -24,15 +24,21 @@
         </div>
         <div class="col-sm-6">
             <div class="mt-3">
-                <label class="form-label">Serviço<span> *</span></label>
-                <select class="form-select" name="service_id">
-                    <option value="">Selecione</option>
+                <label class="form-label">Serviço(s)<span> *</span></label>
+                @php
+                    $selectedServiceIds = old('service_ids', isset($license) ? $license->services->pluck('id')->all() : []);
+                @endphp
+                <div class="border rounded p-2" style="max-height: 180px; overflow-y: auto;">
                     @foreach ($services as $service)
-                        <option value="{{ $service->id }}" {{ old('service_id', $license->service_id ?? '') == $service->id ? 'selected' : '' }}>
-                            {{ $service->name }}</option>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="service_ids[]" value="{{ $service->id }}"
+                                id="service-{{ $service->id }}" {{ in_array($service->id, $selectedServiceIds) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="service-{{ $service->id }}">{{ $service->name }}</label>
+                        </div>
                     @endforeach
-                </select>
-                @error('service_id')
+                </div>
+                <small class="text-muted">Marque mais de um pra criar um pacote - um único serial (Chave da Licença) libera todos os serviços marcados.</small>
+                @error('service_ids')
                     <span class="text-danger"><strong>{{ $message }}</strong></span>
                 @enderror
             </div>

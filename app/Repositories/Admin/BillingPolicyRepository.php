@@ -141,8 +141,8 @@ class BillingPolicyRepository extends BaseRepository
     {
         return [
             'customers' => Customer::orderBy('name')->get(),
-            'licenses' => License::with(['customer', 'service'])->orderBy('id', 'desc')->get(),
-            'services' => Service::orderBy('name')->get(),
+            'licenses' => License::with(['customer', 'services'])->orderBy('id', 'desc')->get(),
+            'services' => Service::with('pricingPlans')->orderBy('name')->get(),
         ];
     }
 }

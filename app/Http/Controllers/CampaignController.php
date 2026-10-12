@@ -72,7 +72,6 @@ class CampaignController extends Controller
 
         $license = License::create([
             'customer_id' => $customer->id,
-            'service_id' => $campaign->service_id,
             'campaign_id' => $campaign->id,
             'license_key' => License::generateKey(),
             'quantity' => $campaign->quantity,
@@ -81,6 +80,8 @@ class CampaignController extends Controller
             'status' => License::STATUS_ACTIVE,
             'notes' => 'Licença de teste — Campanha: ' . $campaign->name,
         ]);
+
+        $license->services()->attach($campaign->service_id);
 
         return redirect()->route('campaign.success', ['campaign' => $campaign->slug, 'license' => $license->license_key]);
     }
